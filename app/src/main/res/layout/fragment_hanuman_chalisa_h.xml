@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:background="@drawable/hanuman"
     android:layout_height="wrap_content">
 
     <TextView
@@ -8,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
+        android:textColor="@color/md_theme_dark_inverseSurface"
         android:textSize="20sp"
         android:text="@string/hanuman_chalisa_h" />
 

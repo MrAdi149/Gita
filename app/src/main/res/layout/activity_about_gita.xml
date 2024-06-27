@@ -1,11 +1,12 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/god1"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="15dp">
+        android:paddingTop="20dp">
 
         <TextView
             android:id="@+id/textViewaboutGita"
@@ -15,12 +16,15 @@
             android:textAllCaps="true"
             android:textSize="20sp"
             android:paddingTop="20dp"
+            android:textColor="@color/md_theme_dark_inverseSurface"
             android:text="@string/about_bhagavad_gita"/>
         <TextView
             android:id="@+id/textViewaboutGita1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"
+            android:textColor="@color/md_theme_dark_inverseSurface"
+
             android:paddingTop="10dp"
             android:layout_below="@+id/textViewaboutGita"
             android:text="@string/about_gita"
@@ -31,6 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
+            android:textColor="@color/md_theme_dark_inverseSurface"
+
             android:textAllCaps="true"
             android:paddingTop="10dp"
             android:layout_below="@+id/textViewaboutGita1"
@@ -39,10 +45,11 @@
 
         <TextView
             android:id="@+id/textViewaboutGita3"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="@color/md_theme_dark_inverseSurface"
             android:layout_width="match_parent"
             android:textSize="18sp"
-            android:paddingTop="10dp"
+            android:paddingTop="20dp"
             android:layout_below="@+id/textViewaboutGita2"
             android:text="@string/gita_relevent_full"/>
 

@@ -15,11 +15,11 @@ class AboutAppFragment : DialogFragment() {
         val dialogView = binding.root
 
         binding.githubIcon.setOnClickListener {
-            openUrl("https://github.com/WirelessAlien/BhagavadGitaApp")
+            openUrl("https://github.com/MrAdi149")
         }
 
         binding.githubIssueButton.setOnClickListener {
-            openUrl("https://github.com/WirelessAlien/BhagavadGitaApp/issues")
+            openUrl("https://github.com/MrAdi149/Gita/issues")
         }
 
         binding.licenseText.setOnClickListener {
@@ -27,7 +27,7 @@ class AboutAppFragment : DialogFragment() {
         }
 
         binding.shareIcon.setOnClickListener {
-            val githubUrl = "https://github.com/WirelessAlien/BhagavadGitaApp"
+            val githubUrl = "https://github.com/MrAdi149/Gita"
             val shareIntent = Intent(Intent.ACTION_SEND)
             shareIntent.type = "text/plain"
             shareIntent.putExtra(Intent.EXTRA_TEXT, githubUrl)

@@ -10,13 +10,15 @@ class CustomSpinnerAdapter(
     context: Context,
     resource: Int,  // This should be a layout resource containing a TextView
     private val data: List<String>,
-    private val textSize: Int
+    var textSize: Int = 14
 ) : ArrayAdapter<String>(context, resource, data) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
         val textView = view.findViewById<TextView>(android.R.id.text1)
-        textView.textSize = textSize.toFloat()
+        textView?.let { // Use safe call operator and let block
+            it.textSize = textSize.toFloat()
+        }
         return view
     }
 

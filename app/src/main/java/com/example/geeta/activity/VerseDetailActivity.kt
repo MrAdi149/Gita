@@ -8,7 +8,6 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -103,7 +102,7 @@ class VerseDetailActivity : AppCompatActivity() {
 
                 // Use CustomSpinnerAdapter with coroutines
                 val adapterA = withContext(Dispatchers.Main) {
-                    CustomSpinnerAdapter(this@VerseDetailActivity, R.layout.activity_verse_detail, allAuthors, textSize)
+                    CustomSpinnerAdapter(this@VerseDetailActivity, R.layout.custom_spinner_item, allAuthors, textSize)
                 }
 
                 adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
