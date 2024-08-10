@@ -34,13 +34,14 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.math.abs
 
 class VerseDetailActivity : AppCompatActivity() {
@@ -55,7 +56,7 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
-
+    private val timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -264,11 +265,10 @@ class VerseDetailActivity : AppCompatActivity() {
         }
 
         binding.playPauseButton.setOnClickListener {
-            val audioUrl = "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
             if (isPlaying) {
                 pauseAudio()
             } else {
-                playAudio(audioUrl, binding.progressBar)
+                playCurrentVerseAudio(binding.progressBar)
             }
         }
 
@@ -276,19 +276,14 @@ class VerseDetailActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progressValue: Int, fromUser: Boolean) {
                 if (fromUser) {
                     mediaPlayer.seekTo(progressValue)
-                }
-                else {
+                } else {
                     binding.seekBar.progress = mediaPlayer.currentPosition
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
     }
 
@@ -339,7 +334,7 @@ class VerseDetailActivity : AppCompatActivity() {
         val favoriteList = gson.fromJson<List<FavouriteVerse>>(favoritesJson, favoriteListType).toMutableList()
 
         // Add the new favorite item to the list
-        val newFavoriteItem = FavouriteVerse(chapterId,verseTitle, verseContent, transliteration, wordMeanings, translationText, commentaryText)
+        val newFavoriteItem = FavouriteVerse(chapterId, verseTitle, verseContent, transliteration, wordMeanings, translationText, commentaryText)
         favoriteList.add(newFavoriteItem)
 
         // Save the updated list of favorites back to SharedPreferences
@@ -367,7 +362,7 @@ class VerseDetailActivity : AppCompatActivity() {
             textView.textSize = newSize.toFloat()
         }
 
-        val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
     }
 
@@ -388,8 +383,6 @@ class VerseDetailActivity : AppCompatActivity() {
         val customAdapterT = binding.cAuthorSpinner.adapter as? CustomSpinnerAdapter
         customAdapterT?.textSize = newSize // Int value directly
         customAdapterT?.notifyDataSetChanged()
-
-
     }
 
     private fun getTranslationsFromJson(fileName: String): List<Translation> {
@@ -441,7 +434,9 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun onSwipeRight() {
         if (currentVerseIndex > 0) {
-            pauseAudio()
+            if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
+                pauseAudio()
+            }
             currentVerseIndex--
             val prevVerse = verses[currentVerseIndex]
             updateVerseDetails(binding, prevVerse)
@@ -449,13 +444,14 @@ class VerseDetailActivity : AppCompatActivity() {
             updateCommentaryList()
             updateAdapterTextSize(currentTextSize)
             binding.readMRadioBtn.isChecked = isVerseRead()
-
         }
     }
 
     private fun onSwipeLeft() {
         if (currentVerseIndex < verses.size - 1) {
-            pauseAudio()
+            if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
+                pauseAudio()
+            }
             currentVerseIndex++
             val nextVerse = verses[currentVerseIndex]
             updateVerseDetails(binding, nextVerse)
@@ -471,8 +467,8 @@ class VerseDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateTranslationList() {
 
+    private fun updateTranslationList() {
         // Filter the list of translations based on the selected author and verse number
         val filteredTranslations = translations.filter {
             it.authorName == selectedAuthor && it.verse_id == verses[currentVerseIndex].verse_id
@@ -482,10 +478,9 @@ class VerseDetailActivity : AppCompatActivity() {
         val translationAdapter = TranslationAdapter(filteredTranslations, currentTextSize)
         translationRecyclerView.adapter = translationAdapter
         translationRecyclerView.layoutManager = LinearLayoutManager(this)
-
     }
-    private fun updateCommentaryList() {
 
+    private fun updateCommentaryList() {
         val filteredCommentary = commentary.filter {
             it.lang == selectedLanguageC && it.verse_id == verses[currentVerseIndex].verse_id
         }
@@ -495,7 +490,6 @@ class VerseDetailActivity : AppCompatActivity() {
         val commentaryAdapter = CommentaryAdapter(filteredCommentary, currentTextSize)
         commentaryRecyclerView.adapter = commentaryAdapter
         commentaryRecyclerView.layoutManager = LinearLayoutManager(this)
-
     }
 
     private fun getJsonDataFromAsset(fileName: String): String? {
@@ -508,6 +502,7 @@ class VerseDetailActivity : AppCompatActivity() {
             null
         }
     }
+
     private fun updateVerseDetails(binding: ActivityVerseDetailBinding, verse: Verse) {
         binding.verseTitleTextView.text = verse.title
         binding.verseContentTextView.text = verse.text
@@ -585,7 +580,6 @@ class VerseDetailActivity : AppCompatActivity() {
         Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
-
     private fun shareText() {
         val textToShare = getAllTextContent()
 
@@ -599,6 +593,10 @@ class VerseDetailActivity : AppCompatActivity() {
         startActivity(shareIntent)
     }
 
+    private fun playCurrentVerseAudio(progressBar: ProgressBar) {
+        val audioUrl = "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
+        playAudio(audioUrl, progressBar)
+    }
 
     private fun playAudio(audioUrl: String, progressBar: ProgressBar) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -651,6 +649,44 @@ class VerseDetailActivity : AppCompatActivity() {
                     progressBar.visibility = View.GONE
                     updatePlayPauseButton()
                     startSeekBarUpdate()
+
+                    // Set up the listener for when the audio completes
+                    mediaPlayer.setOnCompletionListener {
+                        if (currentVerseIndex < verses.size - 1) {
+                            onSwipeLeft() // Move to the next verse
+                            playCurrentVerseAudio(progressBar)
+                        } else {
+                            // If all verses in the chapter are finished, move to the next chapter
+                            val nextChapterNumber = verses[currentVerseIndex].chapter_number + 1
+                            if (nextChapterNumber <= 18) {
+                                val nextChapterDetails = getChapterDetails(nextChapterNumber)
+                                val intent = Intent(
+                                    this@VerseDetailActivity,
+                                    ChapterDetailsActivity::class.java
+                                ).apply {
+                                    putExtra(
+                                        "chapter_number",
+                                        nextChapterDetails?.chapter_number ?: 0
+                                    )
+                                    putExtra("chapter_name", nextChapterDetails?.name)
+                                    putExtra("name_meaning", nextChapterDetails?.name_meaning)
+                                    putExtra("chapter_summary", nextChapterDetails?.chapter_summary)
+                                    putExtra(
+                                        "chapter_summary_hindi",
+                                        nextChapterDetails?.chapter_summary_hindi
+                                    )
+                                }
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                Toast.makeText(
+                                    this@VerseDetailActivity,
+                                    "No more chapters available.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
                 }
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
@@ -666,10 +702,13 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
     private fun pauseAudio() {
-        mediaPlayer.pause()
-        isPlaying = false
-        updatePlayPauseButton()
+        if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+            isPlaying = false
+            updatePlayPauseButton()
+        }
     }
+
 
     private fun updatePlayPauseButton() {
         if (isPlaying) {
