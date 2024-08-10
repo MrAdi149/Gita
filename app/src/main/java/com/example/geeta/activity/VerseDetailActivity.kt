@@ -46,7 +46,6 @@ class VerseDetailActivity : AppCompatActivity() {
     private var currentVerseIndex = 0
     private lateinit var verses: List<Verse>
     private lateinit var mediaPlayer: MediaPlayer
-
     private var isPlaying = false
     private lateinit var binding: ActivityVerseDetailBinding
     private lateinit var gestureDetector: GestureDetectorCompat
