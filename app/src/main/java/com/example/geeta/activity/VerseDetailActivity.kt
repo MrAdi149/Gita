@@ -40,8 +40,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
-import java.util.Timer
-import java.util.TimerTask
 import kotlin.math.abs
 
 class VerseDetailActivity : AppCompatActivity() {
@@ -56,7 +54,6 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
-    private val timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
